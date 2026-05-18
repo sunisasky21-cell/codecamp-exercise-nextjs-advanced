@@ -13,7 +13,7 @@
 ### Build a REST API with Dashboard
 
 1. **Fork** this repository and **clone** your fork
-2. Run `npm install` and `npm run dev`
+2. Run `pnpm install` and `pnpm dev`
 3. Implement the Route Handlers and middleware
 
 #### Step 1: Users Route Handler (`src/app/api/users/route.ts`)
@@ -84,8 +84,8 @@ codecamp-exercise-nextjs-advanced/
 ## Commands
 
 ```bash
-npm install     # Install dependencies
-npm run dev     # Start dev server at http://localhost:3000
+pnpm install     # Install dependencies
+pnpm dev     # Start dev server at http://localhost:3000
 ```
 
 ## Testing the API
