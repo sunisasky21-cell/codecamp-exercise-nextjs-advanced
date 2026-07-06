@@ -1,91 +1,43 @@
-import { Suspense } from "react";
-
-// Define basic types for the fetched data
-type User = { id: number; name: string; email: string };
-type Project = { id: number; title: string; description: string; status: string };
-
-// Create async Server Components that fetch data from your API routes
-// - UsersSection: fetches /api/users and displays a user list
-// - ProjectsSection: fetches /api/projects and displays a project list
-
-// Hint: Add an artificial delay with:
-// await new Promise(resolve => setTimeout(resolve, 1000));
-
-async function UsersSection() {
-  // Add an artificial delay for loading state demonstration
-  await new Promise(resolve => setTimeout(resolve, 1000));
-
-  // Fetch users from /api/users (Using absolute URL or relative depending on environment)
-  // In Next.js App Router, configure your base URL accordingly if needed.
-  const res = await fetch("http://localhost:3000/api/users", { cache: "no-store" });
+import { Suspense } from 'react';
+async function getProjects() {
   
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || '';
+  
+  const res = await fetch(`${baseUrl}/api/projects`, {
+    cache: 'no-store',
+  });
+
   if (!res.ok) {
-    return <p>Failed to load users.</p>;
+    throw new Error('Failed to fetch projects');
   }
 
-  const users: User[] = await res.json();
+  return res.json();
+}
 
+export default async function DashboardPage() {
   return (
-    <section>
-      <h2>Users</h2>
-      {users.length === 0 ? (
-        <p>No users found.</p>
-      ) : (
-        <ul>
-          {users.map(user => (
-            <li key={user.id}>
-              <strong>{user.name}</strong> ({user.email})
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">Dashboard</h1>
+      
+      {/* ใช้ Suspense ในการจัดการ Streaming ข้อมูล */}
+      <Suspense fallback={<div>กำลังโหลดข้อมูลโครงการ...</div>}>
+        <ProjectList />
+      </Suspense>
+    </div>
   );
 }
 
-async function ProjectsSection() {
-  // Add an artificial delay for loading state demonstration
-  await new Promise(resolve => setTimeout(resolve, 1000));
-
-  // Fetch projects from /api/projects
-  const res = await fetch("http://localhost:3000/api/projects", { cache: "no-store" });
-
-  if (!res.ok) {
-    return <p>Failed to load projects.</p>;
-  }
-
-  const projects: Project[] = await res.json();
-
+async function ProjectList() {
+  const projects = await getProjects();
+  
   return (
-    <section>
-      <h2>Projects</h2>
-      {projects.length === 0 ? (
-        <p>No projects found.</p>
-      ) : (
-        <ul>
-          {projects.map(project => (
-            <li key={project.id}>
-              <strong>{project.title}</strong> - {project.status}
-              <p>{project.description}</p>
-            </li>
-          ))}
-        </ul>
-      )}
-    </section>
-  );
-}
-
-export default function DashboardPage() {
-  return (
-    <div>
-      <h1>Dashboard</h1>
-      {/* Wrap each section in a <Suspense> boundary with a loading fallback */}
-      <Suspense fallback={<p>Loading users...</p>}>
-        <UsersSection />
-      </Suspense>
-      <Suspense fallback={<p>Loading projects...</p>}>
-        <ProjectsSection />
-      </Suspense>
+    <div className="grid gap-4">
+      {projects.map((project: any) => (
+        <div key={project.id} className="border p-4 rounded-lg shadow-sm">
+          <h3 className="font-semibold">{project.name}</h3>
+          <p className="text-sm text-gray-600">{project.description}</p>
+        </div>
+      ))}
     </div>
   );
 }
